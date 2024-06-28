@@ -1,0 +1,89 @@
+import msvcrt
+import os
+import csv
+
+#coleccion para las reservas
+reservas = []
+
+#coleeccion para los tipos de habitacion
+tiposhab = ("individual","doble","suite")
+
+def printR(texto):
+    print(f"\33[31m{texto}\033]0m")
+
+def printV(texto):
+    print(f"\033[32m{texto}\033[0m")
+
+def printA(texto):
+    print(f"\033[33m{texto}\033[0m")
+    
+def limpiar():
+    printA("<<<presione una tecla para continuar>>>")
+    msvcrt.getch()
+    os.system("cls")
+    
+def menu():
+    printA("sistema gestion reservas luxury stay")
+    printA("════════════════════════════════════")
+    print("1)registrar reserva")
+    print("2) listar reservas")
+    print("3) generar reporte por fecha")
+    print("0) salir")
+    printA("════════════════════════════════════")
+
+def selecciontipo():
+    print("tipos disponibles")
+    for i in range(len(tiposhab)):
+        print(f"{i+1}.- {tiposhab[i]}")
+    opc = int(input("seleccione :"))-1
+    if opc>=0 and opc<len(tiposhab):
+        return tiposhab [opc]
+    else:
+        return None
+    
+def agregarReserva(nombre,fllegada, fsalida, tipo, nhab):
+    if len(nombre)>=3:
+        if len(fllegada)==10:
+            if len (fsalida)==10:
+                if tipo in tiposhab:
+                    if nhab>0:
+                        reservas.append([nombre,fllegada,fsalida,tipo,nhab])
+                        printV("reserva registrada")
+                    else:
+                        printR("numero habitacion no valida")
+                else:
+                    printR("tipo de habitacion no valida")
+            else:
+                printR("no  es una fecha valida(dd/mm/yyyy)")
+        else:
+            printR("no es una fecha valida (dd/mm/yyyy)")
+    else:
+        printR("nombrer no valido")
+        
+def listarReservas():
+    if len(reservas)>0:
+        for i in range(len(reservas)):
+            printA(f"{i+1}.- {reservas[i][0]} {reservas[i][1]} {reservas[i][2]} {reservas[i][3]} {reservas[i][4]} ")
+    else:
+        printR("no hay reservas registradas")
+        
+def generarReportefecha(fecha):
+    if len (reservas)>0:
+        if len(fecha)==10:
+            reservasporfechas = []
+            for r in reservas:
+                if r[1]==fecha:
+                    reservasporfechas.append(r)
+            if len(reservasporfechas)>0:
+                with open('reportesreservasporfechas.csv','w',newline='',encoding='utf-8')as archivo:
+                    esc = csv.writer(archivo,delimiter=",")
+                    reservasporfechas.insert(0,["nombre completo","fecha llegada","fecha salida","tipo habitacion","numero habitacion"])
+                    esc.writerows(reservasporfechas)
+                    printV("reporte generado")
+                    reservasporfechas.pop(0)
+            else:("no hay reservas para esa fecha")
+                        
+        else:
+            printR("el formato de la fecha no es valido")
+    else:
+        printR("no hay reservas registradas")
